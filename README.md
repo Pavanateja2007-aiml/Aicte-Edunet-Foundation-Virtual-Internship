@@ -2,6 +2,11 @@
 
 A lightweight TCP port scanner with a graphical user interface built with Python and Tkinter.
 
+## Details Of Intern
+- **Name:** - VEMURI VENKATA SATYA MARKANDEYA PAVANATEJA
+- **Stud ID:** - STU697054b4b297d1768969396
+- **Aicte :** - AICTE B3 OL 2001-4087-1884
+- **Intership Id:** - INTERNSHIP_17703809656985dea55aec7
 ## Features
 
 - **Simple 3-field interface** – enter a target host, start port, and end port

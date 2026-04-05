@@ -68,7 +68,7 @@ Ports not in the list are reported as `Unknown`.
 ## Project Structure
 
 ```
-nmap_portscan_gui/
+Aicte-Edunet-Foundation-Virtual-Internship/
 ├── portscanergui.py   # Main application (scanner + GUI)
 └── README.md
 ```

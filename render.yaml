@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: netrecon-ai-port-scanner
+    runtime: python
+    region: oregon
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python ai_upgraded_port_scaner_gui.py
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: PYTHON_VERSION
+        value: 3.11.0

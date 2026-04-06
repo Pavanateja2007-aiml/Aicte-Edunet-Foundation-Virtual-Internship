@@ -1,0 +1,190 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: transparent; font-family: 'Courier New', monospace; }
+  .app { background: #0d1117; border-radius: 10px; overflow: hidden; border: 1px solid #30363d; width: 100%; max-width: 860px; margin: 0 auto; }
+  .titlebar { background: #010409; height: 36px; display: flex; align-items: center; padding: 0 12px; justify-content: space-between; border-bottom: 1px solid #21262d; }
+  .wb { display: flex; gap: 7px; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot.r { background: #f85149; }
+  .dot.y { background: #d29922; }
+  .dot.g { background: #3fb950; }
+  .title-text { color: #3fb950; font-size: 13px; font-weight: bold; letter-spacing: 1px; }
+  .api-status { color: #3fb950; font-size: 11px; }
+  .inputs { background: #161b22; padding: 10px 14px; border-bottom: 1px solid #21262d; }
+  .input-row { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { color: #8b949e; font-size: 10px; letter-spacing: 0.5px; }
+  .field input { background: #010409; border: 1px solid #30363d; color: #e6edf3; font-family: 'Courier New', monospace; font-size: 11px; padding: 5px 8px; border-radius: 4px; outline: none; width: 100%; }
+  .field.wide input { width: 180px; }
+  .field.sm input { width: 70px; }
+  .btn { padding: 6px 14px; border-radius: 4px; font-size: 11px; font-family: 'Courier New', monospace; cursor: pointer; border: none; font-weight: bold; }
+  .btn-scan { background: #3fb950; color: #010409; }
+  .btn-stop { background: #f85149; color: #010409; opacity: 0.5; }
+  .btn-ai { background: #58a6ff; color: #010409; }
+  .btn-save { background: #30363d; color: #8b949e; font-size: 10px; }
+  .statusbar { background: #0d1117; padding: 5px 14px; display: flex; justify-content: space-between; align-items: center; }
+  .status-text { color: #3fb950; font-size: 10px; }
+  .elapsed { color: #8b949e; font-size: 10px; }
+  .progress-wrap { background: #161b22; height: 4px; }
+  .progress-bar { background: #3fb950; height: 4px; width: 100%; transition: width 1s; }
+  .tabs { background: #0d1117; display: flex; border-bottom: 1px solid #21262d; }
+  .tab { padding: 8px 16px; font-size: 11px; color: #8b949e; cursor: pointer; border-bottom: 2px solid transparent; }
+  .tab.active { color: #58a6ff; border-bottom: 2px solid #58a6ff; }
+  .content { display: flex; min-height: 280px; }
+  .panel { flex: 1; padding: 12px 14px; overflow: hidden; }
+  .panel.ai-panel { background: #0d1117; border-left: 1px solid #21262d; }
+  .line { font-size: 11px; line-height: 1.7; white-space: pre; }
+  .c-muted { color: #8b949e; }
+  .c-header { color: #58a6ff; }
+  .c-green { color: #3fb950; }
+  .c-red { color: #f85149; font-weight: bold; }
+  .c-amber { color: #d29922; }
+  .c-white { color: #e6edf3; }
+  .sep { color: #30363d; }
+  .ai-header { color: #58a6ff; font-size: 12px; font-weight: bold; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .ai-body { font-size: 10.5px; color: #e6edf3; line-height: 1.75; }
+  .ai-section { margin-bottom: 10px; }
+  .ai-section-title { color: #58a6ff; font-size: 11px; font-weight: bold; margin-bottom: 4px; }
+  .ai-bullet { color: #e6edf3; padding-left: 10px; display: block; font-size: 10.5px; line-height: 1.7; }
+  .badge { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 10px; font-weight: bold; margin-left: 6px; }
+  .badge.high { background: #f85149; color: #010409; }
+  .badge.medium { background: #d29922; color: #010409; }
+  .badge.low { background: #3fb950; color: #010409; }
+  .risk-banner { background: #1f1007; border: 1px solid #d29922; border-radius: 4px; padding: 5px 10px; font-size: 10.5px; color: #d29922; margin-bottom: 10px; }
+  .chat-input-row { background: #161b22; padding: 7px 12px; display: flex; gap: 8px; align-items: center; border-top: 1px solid #21262d; }
+  .chat-input { flex: 1; background: #010409; border: 1px solid #30363d; color: #e6edf3; font-family: 'Courier New', monospace; font-size: 11px; padding: 5px 8px; border-radius: 4px; outline: none; }
+  .bottom-bar { background: #0d1117; padding: 6px 14px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #21262d; }
+  .cursor { display: inline-block; width: 7px; height: 12px; background: #3fb950; animation: blink 1s step-end infinite; vertical-align: text-bottom; margin-left: 1px; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+  .scan-results { font-size: 11px; }
+</style>
+
+<div class="app">
+  <div class="titlebar">
+    <div class="wb">
+      <div class="dot r"></div>
+      <div class="dot y"></div>
+      <div class="dot g"></div>
+    </div>
+    <div class="title-text">◈  NETRECON AI</div>
+    <div class="api-status">● API: Connected</div>
+  </div>
+
+  <div class="inputs">
+    <div class="input-row">
+      <div class="field wide">
+        <label>TARGET  (IP / HOSTNAME)</label>
+        <input value="192.168.1.1" readonly />
+      </div>
+      <div class="field sm">
+        <label>START PORT</label>
+        <input value="1" readonly />
+      </div>
+      <div class="field sm">
+        <label>END PORT</label>
+        <input value="9999" readonly />
+      </div>
+      <div class="field sm">
+        <label>THREADS</label>
+        <input value="500" readonly />
+      </div>
+      <div class="field sm">
+        <label>TIMEOUT (s)</label>
+        <input value="0.5" readonly />
+      </div>
+      <button class="btn btn-scan">▶  Scan</button>
+      <button class="btn btn-stop">■  Stop</button>
+    </div>
+  </div>
+
+  <div class="statusbar">
+    <div class="status-text">Completed  |  9999 ports  |  11 open found</div>
+    <div class="elapsed">14.3s</div>
+  </div>
+  <div class="progress-wrap"><div class="progress-bar"></div></div>
+
+  <div class="tabs">
+    <div class="tab active">📡 Scan Results</div>
+    <div class="tab">🤖 AI Analysis</div>
+    <div class="tab">💬 Ask AI</div>
+  </div>
+
+  <div class="content">
+    <div class="panel" style="flex:1.05; border-right:1px solid #21262d;">
+      <div class="scan-results">
+        <div class="line c-header">  Target  : 192.168.1.1 (192.168.1.1)</div>
+        <div class="line c-muted">  Range   : 1 – 9999</div>
+        <div class="line c-muted">  Threads : 500   Timeout: 0.5s</div>
+        <div class="line sep">  ────────────────────────────────────────────</div>
+        <div class="line" style="height:6px"></div>
+        <div class="line c-green">  [OPEN]  Port    21  FTP               </div>
+        <div class="line c-red">  [OPEN]  Port    22  SSH                ⚠ HIGH RISK</div>
+        <div class="line c-red">  [OPEN]  Port    23  Telnet             ⚠ HIGH RISK</div>
+        <div class="line c-green">  [OPEN]  Port    53  DNS               </div>
+        <div class="line c-amber">  [OPEN]  Port    80  HTTP               △ MEDIUM</div>
+        <div class="line c-amber">  [OPEN]  Port   443  HTTPS              △ MEDIUM</div>
+        <div class="line c-red">  [OPEN]  Port   445  SMB                ⚠ HIGH RISK</div>
+        <div class="line c-amber">  [OPEN]  Port  3389  RDP                △ MEDIUM</div>
+        <div class="line c-red">  [OPEN]  Port  3306  MySQL              ⚠ HIGH RISK</div>
+        <div class="line c-red">  [OPEN]  Port  5900  VNC                ⚠ HIGH RISK</div>
+        <div class="line c-red">  [OPEN]  Port  6379  Redis              ⚠ HIGH RISK</div>
+        <div class="line" style="height:6px"></div>
+        <div class="line sep">  ────────────────────────────────────────────</div>
+        <div class="line c-muted">  Scan complete in 14.3s  |  <span class="c-green">11 open port(s) found</span></div>
+        <div class="line c-header">  → Switch to 🤖 AI Analysis and click ⚡ Analyze with AI<span class="cursor"></span></div>
+      </div>
+    </div>
+
+    <div class="panel ai-panel" style="flex:0.95;">
+      <div class="ai-header">
+        <span style="color:#58a6ff; font-size:13px;">⚡</span>
+        AI Security Analysis
+        <span style="font-size:10px; color:#8b949e; font-weight:normal;">claude-sonnet-4-20250514</span>
+      </div>
+
+      <div class="risk-banner">
+        ⚠  Overall Risk: <strong>CRITICAL</strong> — Multiple severe exposures detected on this host
+      </div>
+
+      <div class="ai-section">
+        <div class="ai-section-title">🛡 Risk Overview</div>
+        <div class="ai-body" style="color:#c9d1d9; font-size:10.5px; line-height:1.7;">
+          This host exposes 6 high-risk services simultaneously, including unauthenticated Redis, Telnet in plaintext, and a publicly reachable VNC. This combination is consistent with a severely misconfigured network device or server.
+        </div>
+      </div>
+
+      <div class="ai-section">
+        <div class="ai-section-title">⚠️ Key Vulnerabilities</div>
+        <span class="ai-bullet c-red">• Port 23 (Telnet) — credentials transmitted in plaintext</span>
+        <span class="ai-bullet c-red">• Port 6379 (Redis) — likely unauthenticated, RCE risk</span>
+        <span class="ai-bullet c-red">• Port 5900 (VNC) — remote desktop, often weak auth</span>
+        <span class="ai-bullet c-red">• Port 445 (SMB) — EternalBlue / ransomware vector</span>
+        <span class="ai-bullet c-amber">• Port 3306 (MySQL) — DB exposed outside localhost</span>
+        <span class="ai-bullet c-amber">• Port 3389 (RDP) — brute-force target, enable NLA</span>
+      </div>
+
+      <div class="ai-section">
+        <div class="ai-section-title">✅ Immediate Actions</div>
+        <span class="ai-bullet" style="color:#c9d1d9;">1. Disable Telnet → replace with SSH only</span>
+        <span class="ai-bullet" style="color:#c9d1d9;">2. Bind Redis to 127.0.0.1, add requirepass</span>
+        <span class="ai-bullet" style="color:#c9d1d9;">3. Firewall VNC &amp; RDP behind VPN</span>
+        <span class="ai-bullet" style="color:#c9d1d9;">4. Restrict MySQL to app subnet only</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="chat-input-row">
+    <input class="chat-input" placeholder="Ask AI: 'How do I secure Redis?' or 'What CVEs affect port 445?'" readonly />
+    <button class="btn btn-ai">Send ↵</button>
+  </div>
+
+  <div class="bottom-bar">
+    <button class="btn" style="background:#161b22; color:#8b949e; font-size:10px; border:1px solid #30363d;">Clear Scan</button>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <span style="color:#8b949e;font-size:10px;">11 ports found</span>
+      <button class="btn btn-ai" style="font-size:10px; padding:4px 12px;">⚡ Analyze with AI</button>
+      <button class="btn btn-save">💾 Save Results</button>
+    </div>
+  </div>
+</div>
